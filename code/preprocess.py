@@ -4,6 +4,7 @@ from PIL import Image
 from keras.utils import np_utils
 
 import numpy as np
+import matplotlib.pyplot as plt
 import glob
 import pickle
 import os
@@ -32,7 +33,7 @@ def load_patches():
             im = Image.open(filename)
 
             im = im.resize((RESIZE_WIDTH, RESIZE_HEIGHT), Image.ANTIALIAS) # downscale
-            im = im.convert('1') # monochrome
+            im = im.convert('L') # monochrome
             im.save(f)
 
             label = f[0]
@@ -40,7 +41,7 @@ def load_patches():
 
             imp = np.asarray(im)
             imp = imp.reshape((RESIZE_PIXELS,1))
-            patches.append(imp)
+            patches.append(imp/255)
             labels.append(label)
 
             im.close()
@@ -91,4 +92,3 @@ def letter_to_int(l):
     return next((i for i, _letter in enumerate(_alph) if _letter == l), None)
 
 p,l = load_patches()
-t,v,tl,vl = divide_sets(0.7,p,l)
