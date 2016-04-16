@@ -22,6 +22,7 @@ import numpy as np
 INPUT_DIMENSION = 32
 OUTPUT_DIMENSION = INPUT_DIMENSION # Symmetrical
 
+#TODO Adjust dimensions
 def build_autoencoder():
     model = Sequential() # Linear stack of layers
 
@@ -35,3 +36,8 @@ def build_autoencoder():
 
     model.add(Dense(OUTPUT_DIMENSION))
     model.add(Activation('softmax'))
+    sgd = SGD(lr=0.1, decay=1e-6, momentum=0.9, nesterov=True)
+    model.compile(loss='mean_squared_error', optimizer=sgd)
+
+    return model
+    
