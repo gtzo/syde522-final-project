@@ -18,7 +18,7 @@ DATA_PATH = '../data/'
 NUM_CLASSES = 20
 IM_PER_CLASS = 48
 
-RESIZE_WIDTH = 100 
+RESIZE_WIDTH = INPUT_DIMENSION[0]
 wperc = RESIZE_WIDTH / float(INPUT_DIMENSION[0])
 RESIZE_HEIGHT = int(float(INPUT_DIMENSION[1]) * float(wperc))
 RESIZE_PIXELS = RESIZE_WIDTH * RESIZE_HEIGHT
@@ -34,7 +34,6 @@ def load_patches():
 
             im = im.resize((RESIZE_WIDTH, RESIZE_HEIGHT), Image.ANTIALIAS) # downscale
             im = im.convert('L') # monochrome
-            im.save(f)
 
             label = f[0]
             label = letter_to_int(label)
@@ -91,4 +90,5 @@ def letter_to_int(l):
     _alph = 'ABCDEFGHIJKLMNOPQRST'
     return next((i for i, _letter in enumerate(_alph) if _letter == l), None)
 
+np.set_printoptions(threshold=np.nan)
 p,l = load_patches()
