@@ -18,35 +18,38 @@ DATA_PATH = '../data/'
 NUM_CLASSES = 20
 IM_PER_CLASS = 48
 
-RESIZE_WIDTH = INPUT_DIMENSION[0]
+RESIZE_WIDTH = 50
 wperc = RESIZE_WIDTH / float(INPUT_DIMENSION[0])
-RESIZE_HEIGHT = int(float(INPUT_DIMENSION[1]) * float(wperc))
-RESIZE_PIXELS = RESIZE_WIDTH * RESIZE_HEIGHT
+#RESIZE_HEIGHT = int(float(INPUT_DIMENSION[1]) * float(wperc))
+RESIZE_HEIGHT = 50
+RESIZE_PIXELS = RESIZE_WIDTH * RESIZE_HEIGHT # Square image
 
 # Create labeled list of files
 # Also downscale
-def load_patches():
+def load_patches(cat_vec=True):
     patches, labels = [], []
     for r, d, files in os.walk(DATA_PATH):
         for f in files:
             filename = DATA_PATH  + f
-            im = Image.open(filename)
+            im = Image.open(filename).convert('L')
 
             im = im.resize((RESIZE_WIDTH, RESIZE_HEIGHT), Image.ANTIALIAS) # downscale
-            im = im.convert('L') # monochrome
 
             label = f[0]
             label = letter_to_int(label)
-
-            imp = np.asarray(im)
-            imp = imp.reshape((RESIZE_PIXELS,1))
-            patches.append(imp/255)
             labels.append(label)
+
+            # Preprocessing things
+            imp = np.asarray(im)
+            imp = imp.reshape(-1,).astype('f')
+
+            patches.append(imp/255)
 
             im.close()
 
     labels = np.asarray(labels)
-    labels = np_utils.to_categorical(labels, NUM_CLASSES)
+    if cat_vec:
+        labels = np_utils.to_categorical(labels, NUM_CLASSES)
     return np.squeeze(np.asarray(patches)), labels
 
 # Divide sets into tr_perc % training data
@@ -61,10 +64,14 @@ def divide_sets(tr_perc, data, labels):
     t_labels = []
     v_labels = []
 
+    if tr_size == 0 or v_size == 0:
+        print "Empty data set .... !" 
+        return
+
     for c in range(0, NUM_CLASSES):
         starting_ind = IM_PER_CLASS * c
         for i in range(0, tr_size):
-            ex = data[starting_ind + i] 
+            ex = data[starting_ind + i]
             ex_l = labels[starting_ind + i]
             training.append(ex)
             t_labels.append(ex_l)
@@ -90,5 +97,5 @@ def letter_to_int(l):
     _alph = 'ABCDEFGHIJKLMNOPQRST'
     return next((i for i, _letter in enumerate(_alph) if _letter == l), None)
 
-np.set_printoptions(threshold=np.nan)
 p,l = load_patches()
+
