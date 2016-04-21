@@ -22,7 +22,7 @@ RESIZE_WIDTH = 50
 wperc = RESIZE_WIDTH / float(INPUT_DIMENSION[0])
 #RESIZE_HEIGHT = int(float(INPUT_DIMENSION[1]) * float(wperc))
 RESIZE_HEIGHT = 50
-RESIZE_PIXELS = RESIZE_WIDTH * RESIZE_HEIGHT # Square image
+RESIZE_PIXELS = RESIZE_WIDTH * RESIZE_HEIGHT
 
 # Create labeled list of files
 # Also downscale
@@ -63,17 +63,23 @@ def divide_sets(tr_perc, data, labels):
 
     t_labels = []
     v_labels = []
+    
+    labeled_training = dict()
 
     if tr_size == 0 or v_size == 0:
         print "Empty data set .... !" 
         return
 
+    class_means = []
+
     for c in range(0, NUM_CLASSES):
         starting_ind = IM_PER_CLASS * c
+        class_act = []
         for i in range(0, tr_size):
             ex = data[starting_ind + i]
             ex_l = labels[starting_ind + i]
             training.append(ex)
+            class_act.append(ex)
             t_labels.append(ex_l)
         for j in range(tr_size, IM_PER_CLASS):
             ex = data[starting_ind + j]
@@ -81,7 +87,11 @@ def divide_sets(tr_perc, data, labels):
             valid.append(ex)
             v_labels.append(ex_l)
 
-    return np.asarray(training), np.asarray(valid), np.asarray(t_labels), np.asarray(v_labels)
+        class_means.append(class_act)
+
+    class_means = np.average(class_means,axis=1)
+
+    return np.asarray(training), np.asarray(valid), np.asarray(t_labels), np.asarray(v_labels), np.asarray(class_means)
 
 # Pass in a list of labels
 # Returns unique labels list
@@ -97,5 +107,8 @@ def letter_to_int(l):
     _alph = 'ABCDEFGHIJKLMNOPQRST'
     return next((i for i, _letter in enumerate(_alph) if _letter == l), None)
 
+"""
 p,l = load_patches()
-
+t,l,tl,vl,d = divide_sets(0.7, p,l)
+print d.shape
+"""
